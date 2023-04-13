@@ -40,27 +40,28 @@ export const CatalogPageBase = ({ intl }) => {
           <Col className="text-center">{intl.formatMessage(messages.catalogLoading)}</Col>
         </Row>
       )) || (
-        <Row>
-          {
-            // We can get insight into the structure of courses at this
-            // endpoint by checking our local copy of it here:
-            // http://localhost:18000/api/courses/v1/courses/
-          }
-          {courses.map((course) => (
-            <Col xs={6} md={4} lg={3} key={course.id}>
-              <Card>
-                <Card.ImageCap
-                  variant="top"
-                  src={buildLmsUrl(course.media.course_image.uri)}
-                  alt={intl.formatMessage(messages.catalogCourseBannerAlt, { courseName: course.name })}
-                />
-                <Card.Header>{course.name}</Card.Header>
-                <Button variant="primary" href={buildCourseURL(course.id)}>{intl.formatMessage(messages.catalogCourseView)}</Button>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      )}
+          <Row>
+            {
+              // We can get insight into the structure of courses at this
+              // endpoint by checking our local copy of it here:
+              // http://localhost:18000/api/courses/v1/courses/
+            }
+            {courses.map((course) => (
+              <Col xs={6} md={4} lg={3} key={course.id}>
+                <Card>
+                  <Card.ImageCap
+                    variant="top"
+                    src={buildLmsUrl(course.media.course_image.uri)}
+                    alt={intl.formatMessage(messages.catalogCourseBannerAlt, { courseName: course.name })}
+                  />
+                  <Card.Header>{course.name}</Card.Header>
+                  <p>{course.name}</p>
+                  <Button variant="primary" href={buildCourseURL(course.id)}>{intl.formatMessage(messages.catalogCourseView)}</Button>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        )}
     </Container>
   );
 };
