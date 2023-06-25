@@ -1,0 +1,137 @@
+body.active-modal {
+    overflow-y: hidden;
+}
+
+.btn-modal {
+    padding: 10px 20px;
+    display: block;
+    margin: 100px auto 0;
+    font-size: 18px;
+}
+
+.modal-2,
+.overlay {
+
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+
+}
+
+
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1.4;
+    background: #f1f1f1;
+    padding: 14px 28px;
+    border-radius: 3px;
+    max-width: 90%;
+    min-width: 300px;
+    height: 80%;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0px 7px 8px rgb(0, 0, 0, 0.8);
+    background-image: url('../assets/bg-1.png');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: 70%;
+
+    display: flex;
+    flex-direction: row !important;
+    overflow: hidden;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 7px;
+}
+
+.spinning-wheel-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wheel {
+    width: 200px;
+    height: 200px;
+    border: 10px solid #333;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    transition: transform 3s ease-in-out;
+    flex: 1;
+}
+
+.spinning {
+    animation: spin-animation 3s linear infinite;
+}
+
+@keyframes spin-animation {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 0px 30px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    padding: 40px 16px;
+    margin: 16px;
+    //max-width: 50%;
+}
+
+.card-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.card-content {
+    font-size: 140%;
+    color: #000;
+    font-weight: 500;
+}
+
+.modal-left {
+    flex: 1;
+    max-width: 50%;
+}
+
+.modal-btn {
+    margin: 0 15%;
+}
+
+.wheel {
+    flex: 1;
+}
+
+
+#canvas {
+    position: unset !important;
+    bottom: 0% !important;
+    display: block;
+}

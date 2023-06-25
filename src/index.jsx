@@ -8,15 +8,17 @@ import { AppProvider, ErrorPage } from '@edx/frontend-platform/react';
 import ReactDOM from 'react-dom';
 
 import Header, { messages as headerMessages } from '@edx/frontend-component-header';
+// eslint-disable-next-line no-unused-vars
 import Footer, { messages as footerMessages } from '@edx/frontend-component-footer';
-
 import { Route, Switch } from 'react-router';
 import appMessages from './i18n';
 import ExamplePage from './example/ExamplePage';
 
 import './index.scss';
 import { ROUTES } from './common/constants';
-import { CatalogPage } from './catalog/CatalogPage';
+// import { CatalogPage } from './LearnToEarn/LearnToEarn';
+import { LearnToEarnPage } from './LearnToEarn/UserPoints';
+
 import store from './common/store';
 
 subscribe(APP_READY, () => {
@@ -26,10 +28,11 @@ subscribe(APP_READY, () => {
       <main>
         <Switch>
           <Route exact path={ROUTES.HOME} component={ExamplePage} />
-          <Route exact path={ROUTES.Catalog.HOME} component={CatalogPage} />
+          {/* <Route exact path={ROUTES.Catalog.HOME} component={CatalogPage} /> */}
+          <Route exact path={ROUTES.LearnToEarn.HOME} component={LearnToEarnPage} />
         </Switch>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </AppProvider>,
     document.getElementById('root'),
   );
@@ -48,4 +51,6 @@ initialize({
     headerMessages,
     footerMessages,
   ],
+  // requireAuthenticatedUser: true,
+  // hydrateAuthenticatedUser: true,
 });

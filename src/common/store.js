@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { catalogReducer } from '../catalog/data/slice';
+import { pointsReducer } from '../LearnToEarn/data/slice';
 import { STORE_NAMES } from './constants';
 
 export default configureStore({
   reducer: {
-    [STORE_NAMES.CATALOG]: catalogReducer,
+    [STORE_NAMES.Points]: pointsReducer,
   },
 });

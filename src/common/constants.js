@@ -3,6 +3,7 @@
 // to avoid putting everything in the root.
 export const STORE_NAMES = {
   CATALOG: 'catalog',
+  LearnToEarn: 'LearnToEarn',
 };
 
 // Right now we have our built-in home view that we'll keep just
@@ -18,5 +19,8 @@ export const ROUTES = {
   HOME: '/',
   Catalog: {
     HOME: '/catalog/',
+  },
+  LearnToEarn: {
+    HOME: '/LearnToEarn/',
   },
 };
