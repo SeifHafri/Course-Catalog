@@ -7,7 +7,7 @@ import "./modal.scss";
 
 const token = 'seif2';
 
-function UserComponent() {
+function MainComponent() {
   const [courses, setCourses] = useState([]);
   const [courseIds, setCourseIds] = useState([]);
   const [users, setUsers] = useState([]);
@@ -34,31 +34,31 @@ function UserComponent() {
     fetchUsers();
 
     //fetch course grades
-    fetchGrades();
+    //fetchGrades();
 
 
   },);
 
-  const fetchGrades = async () => {
-    try {
-      const response = await fetch('http://djezzy-academy.dz:8000/api/grades/v1/courses/course-v1:edX+DemoX+Demo_Course', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },)
-        .then((response) => response.json())
-        .then((data) => {
-          setUserList(data.results);
-          console.log(userList);
+  // const fetchGrades = async () => {
+  //   try {
+  //     const response = await fetch('http://djezzy-academy.dz:8000/api/grades/v1/courses/course-v1:edX+DemoX+Demo_Course', {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     },)
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         setUserList(data.results);
+  //         console.log(userList);
 
 
 
-        })
-    }
-    catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  //       })
+  //   }
+  //   catch (error) {
+  //     console.error('Error:', error);
+  //   }
+  // };
 
   const fetchCourses = async () => {
     try {
@@ -70,7 +70,7 @@ function UserComponent() {
       },)
         .then((response) => response.json())
         .then((data) => {
-          const courseIds = data.results.map(course => course.id);
+          const courseIds = data.results?.map(course => course.id);
           console.log("correct courseids", courseIds);
 
           setCourseIds(courseIds)
@@ -135,5 +135,5 @@ function UserComponent() {
   );
 }
 
-export default UserComponent;
+export default MainComponent;
 

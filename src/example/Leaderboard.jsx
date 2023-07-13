@@ -24,7 +24,7 @@ function Leaderboard(props) {
                 </thead>
                 <tbody>
                     {props.players.map((player, index) => (
-                        <tr key={player.id}>
+                        <tr key={index + 1}>
                             <td>
                                 <div className='rank'>
                                     {index + 1}
