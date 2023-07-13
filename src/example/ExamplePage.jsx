@@ -1,5 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Leaderboard from './Leaderboard';
 import ScoreCard from './ScoreCard';
 import Modal from './Modal';
@@ -12,7 +13,6 @@ function MainComponent() {
   const [courseIds, setCourseIds] = useState([]);
   const [users, setUsers] = useState([]);
 
-
   const [isLoading, setLoading] = useState(true);
   const [userScores, setUserScores] = useState([]);
   const [consolidatedPercentages, setConsolidatedPercentages] = useState({});
@@ -24,86 +24,81 @@ function MainComponent() {
 
   const [userList, setUserList] = useState([]);
 
+  const [userPercentSums, setUserPercentSums] = useState({});
+
   useEffect(() => {
 
-
-    //fetch course
-    fetchCourses();
-
-    // Fetch users
     fetchUsers();
+    calculateUserPercentSums();
+    //console.log("userPercentSums", userPercentSums);
 
-    //fetch course grades
-    //fetchGrades();
-
-
-  },);
-
-  // const fetchGrades = async () => {
-  //   try {
-  //     const response = await fetch('http://djezzy-academy.dz:8000/api/grades/v1/courses/course-v1:edX+DemoX+Demo_Course', {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     },)
-  //       .then((response) => response.json())
-  //       .then((data) => {
-  //         setUserList(data.results);
-  //         console.log(userList);
+  }, [courseIds]);
 
 
-
-  //       })
-  //   }
-  //   catch (error) {
-  //     console.error('Error:', error);
-  //   }
-  // };
 
   const fetchCourses = async () => {
-    try {
-      // Fetch courses
-      fetch("http://djezzy-academy.dz:8000/api/courses/v1/courses/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },)
-        .then((response) => response.json())
-        .then((data) => {
-          const courseIds = data.results?.map(course => course.id);
-          console.log("correct courseids", courseIds);
 
-          setCourseIds(courseIds)
-        })
-
-    }
-    catch {
-      console.error('Error:', error);
-    }
   }
 
   const fetchUsers = async () => {
     try {
-      fetch("http://djezzy-academy.dz:8000/api/enrollment/v1/enrollments/", {
+      const response = await axios.get('http://djezzy-academy.dz:8000/api/enrollment/v1/enrollments/', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          const userNames = data.results.map(item => item.user);
-          const uniqueUsers = Array.from(new Set(data.results.map(item => item.user)));
-          setUsers(uniqueUsers);
+      });
 
-        });
-    }
-    catch {
+      const data = response.data;
+      const userNames = data.results.map(item => item.user);
+      const uniqueUsers = Array.from(new Set(userNames));
+      setUsers(uniqueUsers);
+    } catch (error) {
       console.error('Error:', error);
     }
   }
 
+  const calculateUserPercentSums = async () => {
+    try {
+      const response = await axios.get('http://djezzy-academy.dz:8000/api/courses/v1/courses/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-  // Display the sum of percentages for each user
+      const data = response.data;
+      const courseIds = data.results?.map(course => course.id);
+      //console.log("correct courseids", courseIds);
+      setCourseIds(courseIds);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+    try {
+      const promises = courseIds.map(async courseId => {
+        const response = await axios.get(`http://djezzy-academy.dz:8000/api/grades/v1/courses/${courseId}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("data results", response.data.results);
+        const data = response.data.results;
+
+
+        data.forEach(result => {
+          const { username, percent } = result;
+          setUserPercentSums(prevState => ({
+            ...prevState,
+            [username]: (prevState[username] || 0) + percent,
+          }));
+        });
+
+        console.log("data2", userPercentSums);
+      });
+
+
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   return (
     <div>
@@ -121,19 +116,13 @@ function MainComponent() {
             </div>
             <div className='spin-container'>
               <button onClick={toggleModal} className='spin-btn btn-modal'>Spin to Win !</button>
-
-
-
             </div>
           </div>
         )}
       </div>
-      {modal && (< Modal modal={modal} toggleModal={toggleModal} />)}
+      {modal && (<Modal modal={modal} toggleModal={toggleModal} />)}
     </div>
-
-
   );
 }
 
 export default MainComponent;
-
