@@ -1,9 +1,33 @@
 /* eslint-disable */
-import React from 'react';
-import CircularProgress from './CircularProgress';
-
-
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import CircularProgress from './CircularProgress'; // Make sure to import your CircularProgress component
+import ConvertModal from './ConvertModal'
 function ScoreCard({ score }) {
+    const [currentUsername, setCurrentUsername] = useState('');
+    const [modal, setModal] = useState(false);
+
+    const toggleModal = () => {
+        setModal(prevModal => !prevModal);
+    };
+
+    const token = 'seif1';
+
+    useEffect(() => {
+        axios.get('http://djezzy-academy.dz:8000/api/user/v1/me', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        })
+            .then(response => {
+                const username = response.data.username;
+                setCurrentUsername(username);
+            })
+            .catch(error => {
+                console.error('Error fetching username:', error);
+            });
+    }, []);
+
     return (
         <div>
             <div className='leaderboard-title'>
@@ -15,7 +39,7 @@ function ScoreCard({ score }) {
                     <h3>
                         Bonjour !
                         <br />
-                        Hafri Seif
+                        {currentUsername}
                     </h3>
                 </div>
                 <div className='Column'>
@@ -23,17 +47,15 @@ function ScoreCard({ score }) {
                 </div>
 
                 <div className='column'>
-                    <button className="responsive-button">Convertir en cadeaux !</button>
+                    <button onClick={toggleModal} className="responsive-button">Convertir en cadeaux !</button>
                 </div>
                 <div className='column' id='img-col'>
                     <img src="./assets/gift.png" alt="Cadeau" />
-
                 </div>
-
-
             </div>
+            {modal && <ConvertModal modal={modal} toggleModal={toggleModal} />}
         </div>
     );
-};
+}
 
 export default ScoreCard;

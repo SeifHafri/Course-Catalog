@@ -3,61 +3,45 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Leaderboard from './Leaderboard';
 import ScoreCard from './ScoreCard';
+
 import Modal from './Modal';
 import "./modal.scss";
 
 const token = 'seif2';
+var counter = 0;
 
-function MainComponent() {
-  const [courses, setCourses] = useState([]);
-  const [courseIds, setCourseIds] = useState([]);
-  const [users, setUsers] = useState([]);
+class MainComponent extends React.Component {
 
-  const [isLoading, setLoading] = useState(true);
-  const [userScores, setUserScores] = useState([]);
-  const [consolidatedPercentages, setConsolidatedPercentages] = useState({});
-  const [modal, setModal] = useState(false);
-  const toggleModal = () => {
-    setModal(!modal);
-  };
-  const [sumOfPercentages, setSumOfPercentages] = useState({});
+  constructor(props) {
+    super(props);
+    this.state = {
+      counter: 0,
+      courseIds: [],
+      modal: false,
+      userPercentSums: {},
+      gradesData: [],
+      score: 0.0,
+    };
+  }
 
-  const [userList, setUserList] = useState([]);
+  componentDidMount() {
 
-  const [userPercentSums, setUserPercentSums] = useState({});
-
-  useEffect(() => {
-
-    fetchUsers();
-    calculateUserPercentSums();
-    //console.log("userPercentSums", userPercentSums);
-
-  }, [courseIds]);
-
-
-
-  const fetchCourses = async () => {
+    this.fetchCourses();
+    this.calculateUserPercentSums();
 
   }
 
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get('http://djezzy-academy.dz:8000/api/enrollment/v1/enrollments/', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = response.data;
-      const userNames = data.results.map(item => item.user);
-      const uniqueUsers = Array.from(new Set(userNames));
-      setUsers(uniqueUsers);
-    } catch (error) {
-      console.error('Error:', error);
-    }
+  fetchCourses = async () => {
+    // Your fetch courses logic here
   }
 
-  const calculateUserPercentSums = async () => {
+  fetchUsers = async () => {
+    // Your fetch users logic here
+  }
+
+  calculateUserPercentSums = async () => {
+
+
     try {
       const response = await axios.get('http://djezzy-academy.dz:8000/api/courses/v1/courses/', {
         headers: {
@@ -68,61 +52,91 @@ function MainComponent() {
       const data = response.data;
       const courseIds = data.results?.map(course => course.id);
       //console.log("correct courseids", courseIds);
-      setCourseIds(courseIds);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-    try {
-      const promises = courseIds.map(async courseId => {
-        const response = await axios.get(`http://djezzy-academy.dz:8000/api/grades/v1/courses/${courseId}/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("data results", response.data.results);
-        const data = response.data.results;
-
-
-        data.forEach(result => {
-          const { username, percent } = result;
-          setUserPercentSums(prevState => ({
-            ...prevState,
-            [username]: (prevState[username] || 0) + percent,
-          }));
-        });
-
-        console.log("data2", userPercentSums);
+      this.setState({ courseIds }, () => {
+        this.processGradesData();
       });
-
-
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
-  return (
-    <div>
-      <div className={`${modal ? 'blurry' : 'app'}`}>
-        {(
-          <div>
+  processGradesData = async () => {
+
+    const { courseIds } = this.state;
+
+    try {
+
+      for (let i = 0; i < courseIds.length; i++) {
+        const courseId = courseIds[i];
+        const response = await axios.get(`http://djezzy-academy.dz:8000/api/grades/v1/courses/${courseId}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const gradesData = response.data.results;
+        this.setState({ gradesData }, () => {
+          this.updateUserPercentSums();
+        });
+
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  updateUserPercentSums = () => {
+    const { gradesData } = this.state;
+    const { userPercentSums } = this.state;
+    let score = null; // Initialize the score variable
+
+    gradesData.forEach(result => {
+      const { username, percent } = result;
+      this.setState(prevState => ({
+        userPercentSums: {
+          ...prevState.userPercentSums,
+          [username]: (prevState.userPercentSums[username] || 0) + percent,
+        }
+      }));
+      if (username === 'seif') {
+        score = (userPercentSums['seif'] || 0) + percent;
+      }
+
+    });
+
+    this.setState({ score });
+  };
+
+  toggleModal = () => {
+    this.setState(prevState => ({
+      modal: !prevState.modal
+    }));
+  };
+  render() {
+    const { modal, userPercentSums } = this.state;
+
+    //console.log("userPercentSums", userPercentSums);
+    return (
+      <div>
+        <div className={`${modal ? 'blurry' : 'app'}`}>
+          {(
             <div>
-              <ScoreCard score={900} />
-
-              <Leaderboard players={users} userScores={userScores} />
-
+              <div>
+                <ScoreCard score={this.state.score * 100} />
+                <Leaderboard userScores={userPercentSums} />
+              </div>
+              <div className='messageDaily'>
+                <p>Revenez chaque jour pour gagner des points supplementaires !</p>
+              </div>
+              <div className='spin-container'>
+                <button onClick={this.toggleModal} className='spin-btn btn-modal'>Spin to Win !</button>
+              </div>
             </div>
-            <div className='messageDaily'>
-              <p>Revenez chaque jour pour gagner des points supplementaires !</p>
-            </div>
-            <div className='spin-container'>
-              <button onClick={toggleModal} className='spin-btn btn-modal'>Spin to Win !</button>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
+        {modal && (<Modal modal={modal} toggleModal={this.toggleModal} />)}
       </div>
-      {modal && (<Modal modal={modal} toggleModal={toggleModal} />)}
-    </div>
-  );
+    );
+  }
 }
 
 export default MainComponent;

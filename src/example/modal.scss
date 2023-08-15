@@ -49,6 +49,25 @@ body.active-modal {
     overflow: hidden;
 }
 
+.modal-content-2 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1.4;
+    background: #f1f1f1;
+    padding: 14px 28px;
+    border-radius: 3px;
+    max-width: 90%;
+    min-width: 300px;
+    height: 80%;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0px 7px 8px rgb(0, 0, 0, 0.8);
+    display: block;
+    flex-direction: row !important;
+    overflow: hidden;
+}
+
 .close-modal {
     position: absolute;
     top: 10px;
@@ -127,6 +146,24 @@ body.active-modal {
 
 .wheel {
     flex: 1;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #333;
+}
+
+.close-button:hover {
+    color: #ff0000;
+    /* Change the color on hover if desired */
 }
 
 
