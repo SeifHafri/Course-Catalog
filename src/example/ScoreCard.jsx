@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CircularProgress from './CircularProgress'; // Make sure to import your CircularProgress component
 import ConvertModal from './ConvertModal'
-function ScoreCard({ score }) {
+function ScoreCard({ userData }) {
     const [currentUsername, setCurrentUsername] = useState('');
     const [modal, setModal] = useState(false);
 
@@ -11,22 +11,22 @@ function ScoreCard({ score }) {
         setModal(prevModal => !prevModal);
     };
 
-    const token = 'seif1';
+    // const token = 'seif1';
 
-    useEffect(() => {
-        axios.get('http://djezzy-academy.dz:8000/api/user/v1/me', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        })
-            .then(response => {
-                const username = response.data.username;
-                setCurrentUsername(username);
-            })
-            .catch(error => {
-                console.error('Error fetching username:', error);
-            });
-    }, []);
+    // useEffect(() => {
+    //     axios.get('http://djezzy-academy.dz:8000/api/user/v1/me', {
+    //         headers: {
+    //             Authorization: `Bearer ${token}`,
+    //         }
+    //     })
+    //         .then(response => {
+    //             const username = response.data.username;
+    //             setCurrentUsername(username);
+    //         })
+    //         .catch(error => {
+    //             console.error('Error fetching username:', error);
+    //         });
+    // }, []);
 
     return (
         <div>
@@ -39,11 +39,11 @@ function ScoreCard({ score }) {
                     <h3>
                         Bonjour !
                         <br />
-                        {currentUsername}
+                        {userData.user}
                     </h3>
                 </div>
                 <div className='Column'>
-                    <CircularProgress progress={260} score={score} />
+                    <CircularProgress progress={(userData.score * 260 / 100)} score={userData.score} />
                 </div>
 
                 <div className='column'>

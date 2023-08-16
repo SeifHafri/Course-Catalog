@@ -1,16 +1,16 @@
-/* eslint-disable */
-import React, { useState, useEffect } from 'react';
+/* eslint-disable  */
+import React, { Component } from 'react'; // Import Component instead of useState and useEffect
 import axios from 'axios';
 import Leaderboard from './Leaderboard';
 import ScoreCard from './ScoreCard';
-
 import Modal from './Modal';
 import "./modal.scss";
 
 const token = 'seif2';
-var counter = 0;
+const userApiUrl = 'http::/localhost:9000/users/'; // Define your user API URL
 
-class MainComponent extends React.Component {
+
+class MainComponent extends Component { // Use Component instead of functional components
 
   constructor(props) {
     super(props);
@@ -21,107 +21,169 @@ class MainComponent extends React.Component {
       userPercentSums: {},
       gradesData: [],
       score: 0.0,
+      currentUser: 'seif',
     };
   }
 
   componentDidMount() {
-
-    this.fetchCourses();
     this.calculateUserPercentSums();
 
+
+    // axios.get('http://djezzy-academy.dz:8000/api/user/v1/me', {
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //   }
+    // })
+    //   .then(response => {
+    //     const username = response.data.username;
+    //     this.setState(currentUser, () => currentUser = username);
+    //   })
+    //   .catch(error => {
+    //     console.error('Error fetching username:', error);
+    //   });
   }
 
-  fetchCourses = async () => {
-    // Your fetch courses logic here
-  }
-
-  fetchUsers = async () => {
-    // Your fetch users logic here
-  }
-
-  calculateUserPercentSums = async () => {
+  currentUserData({ currentUser }) {
 
 
-    try {
-      const response = await axios.get('http://djezzy-academy.dz:8000/api/courses/v1/courses/', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    useEffect(() => {
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get(`http://localhost:9000/user/${currentUser}`);
+          setUserData(response.data);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      };
 
-      const data = response.data;
-      const courseIds = data.results?.map(course => course.id);
-      //console.log("correct courseids", courseIds);
-      this.setState({ courseIds }, () => {
-        this.processGradesData();
-      });
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  processGradesData = async () => {
-
-    const { courseIds } = this.state;
-
-    try {
-
-      for (let i = 0; i < courseIds.length; i++) {
-        const courseId = courseIds[i];
-        const response = await axios.get(`http://djezzy-academy.dz:8000/api/grades/v1/courses/${courseId}/`, {
+      fetchUserData();
+    }, [currentUser]);
+    calculateUserPercentSums = async () => {
+      try {
+        const response = await axios.get('http://djezzy-academy.dz:8000/api/courses/v1/courses/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        const gradesData = response.data.results;
+        const data = response.data;
+        const courseIds = data.results?.map(course => course.id);
+        this.setState({ courseIds }, () => {
+          this.processGradesData();
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    processGradesData = async () => {
+      const { courseIds } = this.state;
+      try {
+        const gradesData = [];
+
+        for (let i = 0; i < courseIds.length; i++) {
+          const courseId = courseIds[i];
+          const response = await axios.get(`http://djezzy-academy.dz:8000/api/grades/v1/courses/${courseId}/`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          gradesData.push(...response.data.results);
+        }
+
         this.setState({ gradesData }, () => {
           this.updateUserPercentSums();
         });
-
+      } catch (error) {
+        console.error('Error:', error);
       }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+    };
 
-  updateUserPercentSums = () => {
-    const { gradesData } = this.state;
-    const { userPercentSums } = this.state;
-    let score = null; // Initialize the score variable
+    updateUserPercentSums = () => {
+      const { gradesData } = this.state;
+      let score = 0; // Initialize the score variable
+      const userPercentSums = {};
 
-    gradesData.forEach(result => {
-      const { username, percent } = result;
-      this.setState(prevState => ({
-        userPercentSums: {
-          ...prevState.userPercentSums,
-          [username]: (prevState.userPercentSums[username] || 0) + percent,
+      gradesData.forEach(result => {
+        const { username, percent } = result;
+        userPercentSums[username] = (userPercentSums[username] || 0) + percent;
+
+        if (username === 'seif') {
+          score = userPercentSums['seif'] + percent;
         }
+      });
+
+      this.setState({ userPercentSums, score }, () => {
+        this.rankPlayers();
+      });
+    };
+
+    rankPlayers = () => {
+      const { userPercentSums } = this.state;
+      const mappedArray = Object.entries(userPercentSums).map(([key, value]) => ({
+        username: key,
+        score: value,
       }));
-      if (username === 'seif') {
-        score = (userPercentSums['seif'] || 0) + percent;
+      const sortedArray = mappedArray.sort((a, b) => b.score - a.score);
+
+      this.setState({ rankedArray: sortedArray });
+    };
+
+
+    postData = async (userPercentSums) => {
+      try {
+        const userScores = userPercentSums;
+
+        const users = [];
+
+        for (const [user, score] of Object.entries(userScores)) {
+          score = score * 100;
+          users.push({ user, score });
+        }
+
+        console.log("posted formatted data", JSON.stringify({ users }));
+        const response = await fetch(userApiUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ users }),
+          mode: 'cors'
+        });
+
+        if (response.ok) {
+          console.log('Data posted successfully');
+
+          // You might want to handle success state here
+        } else {
+          console.error('Error posting data');
+          // You might want to handle error state here
+        }
+
+      } catch (error) {
+        console.error('An error occurred:', error);
+        // You might want to handle error state here
       }
 
-    });
+    };
 
-    this.setState({ score });
-  };
+    // The postData function remains unchanged in this example.
 
-  toggleModal = () => {
-    this.setState(prevState => ({
-      modal: !prevState.modal
-    }));
-  };
+    toggleModal = () => {
+      this.setState(prevState => ({
+        modal: !prevState.modal
+      }));
+    }
+  }
+
   render() {
-    const { modal, userPercentSums } = this.state;
-
-    //console.log("userPercentSums", userPercentSums);
+    const { modal, userPercentSums, score } = this.state;
     return (
       <div>
         <div className={`${modal ? 'blurry' : 'app'}`}>
           {(
             <div>
               <div>
-                <ScoreCard score={this.state.score * 100} />
+                <ScoreCard userData />
                 <Leaderboard userScores={userPercentSums} />
               </div>
               <div className='messageDaily'>
